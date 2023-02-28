@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+    font-family: 'Ignazio';
+    src: url(../public//fonts/Ignazio.ttf) format("ttf");
+    font-weight: normal;
+    font-style: normal;
+}
+  @font-face {
+    font-family: 'Coconat';
+    src: url(../public/fonts/Coconat-Regular.woff) format("woff");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  :root{
+    font-family: 'Outfit', sans-serif;
+    text-transform: capitalize;
+    background-color: #f6f8fc;
+}
+
+.card:hover div img {
+  transform: scale(120%, 120%);
+  image-rendering: pixelated; 
+  transition: all;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+  transition-property: all;
+}
+
+.anim_image {
+  image-rendering: pixelated;  
+}

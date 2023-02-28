@@ -1,0 +1,10 @@
+import { useMatch } from '@tanstack/react-router'
+import React from 'react'
+
+function About() {
+  return (
+    <div>About</div>
+  )
+}
+
+export default About
