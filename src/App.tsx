@@ -1,10 +1,10 @@
-import { RouterProvider } from '@tanstack/react-router'
-import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
-import React, { useEffect, useState } from 'react'
-import { useContextProvider } from '../context/TanstackContext'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
+import {  Route, Routes,  } from 'react-router-dom'
+const Product = lazy(() => import('./Product'))
+
 function App() {
 
-    const {router} = useContextProvider()
+
     const [loading, setLoading] = useState(false)
 
 
@@ -23,11 +23,11 @@ function App() {
   }
 
   return (
-<>
-    <RouterProvider router={router}></RouterProvider>
-    {/* <TanStackRouterDevtools initialIsOpen={true}></TanStackRouterDevtools> */}
-</>
-
+      <Routes>
+        <Route path='/' element={<Suspense fallback={<div className='flex justify-center items-center w-screen h-screen'>
+          <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
+        </div>}><Product/></Suspense>}/>
+      </Routes>
   )
 }
 

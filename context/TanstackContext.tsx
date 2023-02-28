@@ -1,58 +1,62 @@
 import React,{createContext, useContext, useState, useEffect} from 'react'
 import {Outlet,RouterProvider,Link,ReactRouter,createRouteConfig,} from '@tanstack/react-router'
-import Home from    '../src/Home';
-import About from   '../src/About';
-import Product from '../src/Product';
 import { useAppDispatch, useAppSelector } from '../hooks/useCustomHook';
 import { fetchPokemons } from '../redux/features/pokemonSlice';
 import { eachPokemon, resArray, singlePokemonData, startState } from '../types';
 import { fetchEachPokemon } from '../redux/features/eachPokeSlice';
-import {ReactQueryDevtools} from 'react-query/devtools'
-import { QueryClient,  QueryClientProvider } from 'react-query';
-import { useRef } from 'react';
 import { useLayoutEffect } from 'react';
-const client = new QueryClient()
+// const client = new QueryClient()
 
-const TanStackRouterDevtools =
-    process.env.NODE_ENV === 'production' ? () => null // Render nothing in production
-    : React.lazy(() =>
-        // Lazy load in development
-        import('@tanstack/react-router-devtools').then(
-          (res) => ({
-            default: res.TanStackRouterDevtools
-            // For Embedded Mode
-            // default: res.TanStackRouterDevtoolsPanel
-          })
-        ),
-      )
+// const TanStackRouterDevtools =
+//     process.env.NODE_ENV === 'production' ? () => null // Render nothing in production
+//     : React.lazy(() =>
+//         // Lazy load in development
+//         import('@tanstack/react-router-devtools').then(
+//           (res) => ({
+//             default: res.TanStackRouterDevtools
+//             // For Embedded Mode
+//             // default: res.TanStackRouterDevtoolsPanel
+//           })
+//         ),
+//       )
 
 
 type ChildType ={
     children: React.ReactNode
 }
-const tanstack = () =>{
-    const rootRoute : any= createRouteConfig({
-        component : () =>{
-            return(
-                <QueryClientProvider client={client}>
-                <Link to='/' search={{}} params={{}}></Link>
-                <br></br>
-                {/* <ContextWrapperRouterDevtools></ContextWrapperRouterDevtools> */}
-                <Outlet></Outlet>
-                <ReactQueryDevtools/>
-                </QueryClientProvider>
-            )
-        }
-    });
- 
-    const homeRoute = rootRoute.createRoute({
-        path: '/',
-        component: Product
-    })
-    const routeConfig = rootRoute.addChildren([homeRoute ])
-    const router = new ReactRouter({routeConfig})
-    return {router}
-}
+// const tanstack = () =>{
+//     const rootRoute : any= createRouteConfig({
+//         component : () =>{
+//             return(
+//                 <QueryClientProvider client={client}>
+//                 <Link to='/'></Link>
+//                 <br></br>
+//                 <Link to='/products'></Link>
+//                 <br></br>
+//                 <Link to='/about'></Link>
+//                 {/* <ContextWrapperRouterDevtools></ContextWrapperRouterDevtools> */}
+//                 <Outlet></Outlet>
+//                 <ReactQueryDevtools/>
+//                 </QueryClientProvider>
+//             )
+//         }
+//     });
+//     const homeRoute = rootRoute.createRoute({
+//         path: '/',
+//         component: Home
+//     })
+//     const aboutRoute = rootRoute.createRoute({
+//         path: '/about',
+//         component: About
+//     })
+//     const productRoute = rootRoute.createRoute({
+//         path: '/products',
+//         component: Product
+//     })
+//     const routeConfig = rootRoute.addChildren([homeRoute, aboutRoute, productRoute])
+//     const router = new ReactRouter({routeConfig})
+//     return {router}
+// }
 
 // function useCallbackRef (cb :any) {
 //     const  myRef = useRef(cb)
@@ -71,7 +75,6 @@ function ContextWrapper({children}: ChildType) {
     window.onload = () =>{
         setUrl("https://pokeapi.co/api/v2/pokemon")
     }
-    const {router} = tanstack()
     const {allPokemons} = useAppSelector((state)=> state)
     let eachPokemons : eachPokemon | Record<string, never> = {}
     if(allPokemons.pokemon ){
@@ -84,8 +87,6 @@ function ContextWrapper({children}: ChildType) {
             setUrl(allPokemons.pokemon.next)
         }
     }
-    
-    requiredData.sort((a, b) => a.id - b.id)
     function goBack() {
         setUrl(initialUrl)
     }
@@ -122,7 +123,7 @@ return () =>{
 
 
     const value = {
-        router,allPokemons,
+        allPokemons,
         triggerUrlUpdate, goBack, 
         requiredData
     }
@@ -143,12 +144,12 @@ return () =>{
     )
 }
 
-const {router} = tanstack()
-declare module "@tanstack/react-router" {
-    interface RegisterRouter{
-        router : typeof router
-    }
-}
+// const {router} = tanstack()
+// declare module "@tanstack/react-router" {
+//     interface RegisterRouter{
+//         router : typeof router
+//     }
+// }
 
 const contextType = () =>{
     const requiredData: singlePokemonData[]= [];
@@ -157,7 +158,7 @@ const contextType = () =>{
     function goBack() {}
 
     return {
-        router, triggerUrlUpdate, goBack,requiredData ,allPokemons
+        triggerUrlUpdate, goBack,requiredData ,allPokemons
     }
 }
 
@@ -172,10 +173,10 @@ const contextType = () =>{
 export const authContext = createContext<authRoute>(null!)
 
 
-export const devtools = () =>{
+// export const devtools = () =>{
 
-    return <TanStackRouterDevtools router={router} initialIsOpen={true} ></TanStackRouterDevtools>
-} 
+//     return <TanStackRouterDevtools router={router} initialIsOpen={true} ></TanStackRouterDevtools>
+// } 
 
 export const useContextProvider = () => useContext(authContext)
 export default ContextWrapper

@@ -1,11 +1,11 @@
-import React, {  useState, useRef, useReducer} from 'react'
+import React, {  useState, useRef, lazy, Suspense, } from 'react'
 import {FaSearch} from 'react-icons/fa'
 import { CardType,  evolutionType, resArray, singlePokemonData, speciesType, } from '../types' 
 import { useContextProvider } from '../context/TanstackContext';
 import {getAllPokemons} from '../hooks/useReactQuery'
 import axios from 'axios';
-import SideCard from './SideCard';
-import Color from './Color';
+const Color = lazy(() => import('./Color'))
+const SideCard = lazy(() => import('./SideCard'));
 
 
 
@@ -145,15 +145,12 @@ function ProductDetail() {
   //   return
   // }
 
- 
-
-
     if(requiredData && allPokemons){
   return (
     
     <div className='relative flex flex-col gap-y-20 '>
       <img src='pokeball-icon.png' className='fixed -left-20 -top-20'></img>
-      <div className='h-16 w-11/12 md+:w-5/6 lg:w-[57%] mx-auto lg:ml-[100px] 2xl:ml-[200px] shadow-md  rounded-xl text-gray-600 outline-none relative z-10 '>
+      <div className='h-16 w-11/12 md+:w-5/6 lg:w-[57%] mx-auto lg:ml-[100px] 2xl:ml-[200px] shadow-md  rounded-xl text-gray-600 outline-none relative z-10 mt-10'>
         <input type="text" name="search"  className='h-full w-full px-2 rounded-xl text-gray-800 tracking-wide font-medium text-lg outline-none focus:border-gray-300 border-2 border-transparent transition relative' id="" placeholder='Search your pokemon' ref={searchInput}  onChange={processChange}/>
         <FaSearch  className='absolute top-1/2 -translate-y-1/2 right-5 h-9 w-9 text-white bg-red-500 shadow-red-400 shadow-lg  p-2 rounded-xl cursor-not-allowed' />
       </div>
@@ -169,7 +166,9 @@ function ProductDetail() {
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
                 <p className='text'>{poke.name}</p>
                 <div ref={div_color} className='text-sm flex gap-x-3 text-gray-800 mt-2'>
-                  {poke.types.map((val) =>(<Color key={val.slot} val={val}/>))}
+                  {poke.types.map((val) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
+                                            <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
+                                          </div>}><Color key={val.slot} val={val}/></Suspense>))}
                   </div>
               </div>
               
@@ -181,7 +180,9 @@ function ProductDetail() {
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
                 <p className='text'>{poke.name}</p>
                 <div className='text-sm flex gap-x-3 text-gray-800 mt-2'>
-                  {poke.types.map((val ) =>( <Color key={val.slot} val={val}/>
+                  {poke.types.map((val ) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
+                                            <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
+                                          </div>}><Color val={val}/></Suspense>
                     ))}
                 </div>
               </div>
@@ -208,7 +209,9 @@ function ProductDetail() {
                   </div>
               )
               : (!isLoading && (window.innerWidth <=1024 || window.innerWidth >1024)) && 
-                  <SideCard img={img} sideCard={sideCard} display={display} setDisplay={setDisplay}/> 
+                  <Suspense fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
+                  <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
+                </div>}><SideCard img={img} sideCard={sideCard} display={display} setDisplay={setDisplay}/></Suspense> 
               }
           </div>
     </div>

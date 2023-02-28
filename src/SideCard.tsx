@@ -4,6 +4,9 @@ import {AiOutlineClose} from 'react-icons/ai'
 
 
 function SideCard( {img, sideCard, display, setDisplay }  : {img: string, sideCard: CardType, display: boolean, setDisplay : React.Dispatch<SetStateAction<boolean>>})  {
+
+// const reqColor = color?.slice(4, -1)
+// console.log(reqColor)
 return (
     <>
         <div className="hidden  lg:inline-block h-screen w-[350px] xl:w-[450px] 2xl:w-[350px] right-5 xl:right-20 2xl:right-10 3xl:right-20 4xl:right-40 5xl:right-60 bg-white rounded-xl shadow-lg fixed top-36">
@@ -197,4 +200,4 @@ return (
   )
 }
 
-export default (SideCard)
+export default SideCard

@@ -3,7 +3,7 @@ import ProductDetail from './ProductDetail'
 
 function Product() {
   return (
-    <ProductDetail ></ProductDetail>
+    <ProductDetail></ProductDetail>
   )
 }
 
