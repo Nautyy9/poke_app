@@ -1,8 +1,7 @@
 import {createSlice, PayloadAction}  from '@reduxjs/toolkit'
 import {createAsyncThunk} from '@reduxjs/toolkit'
-import { useAction } from '@tanstack/react-router'
 import axios, { AxiosResponse } from 'axios'
-import { fetchType, startState,  resArray, eachPokemon} from '../../types'
+import { fetchType, startState} from '../../types'
 
 const initialState: startState = {
     pokemon:  {}  as (fetchType | Record<string, never>)  ,
