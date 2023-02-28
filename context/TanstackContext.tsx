@@ -35,7 +35,7 @@ const tanstack = () =>{
         component : () =>{
             return(
                 <QueryClientProvider client={client}>
-                <Link to='/'></Link>
+                <Link to='/' search={{}} params={{}}></Link>
                 <br></br>
                 {/* <ContextWrapperRouterDevtools></ContextWrapperRouterDevtools> */}
                 <Outlet></Outlet>
