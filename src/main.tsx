@@ -6,6 +6,8 @@ import ContextWrapper from '../context/TanstackContext'
 import { Provider } from 'react-redux';
 import store from '../redux/app/store'
 import { QueryClient,  QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools} from 'react-query/devtools';
+
 const client = new QueryClient()
 
 import {BrowserRouter as Router } from 'react-router-dom';
@@ -14,11 +16,12 @@ root.render(
     <React.StrictMode>
         <Router>
         <Provider store={store}>
-            <ContextWrapper>
             <QueryClientProvider client={client}>
+            <ContextWrapper>
                 <App/>
-            </QueryClientProvider>
             </ContextWrapper>
+            <ReactQueryDevtools/>
+            </QueryClientProvider>
         </Provider>
         </Router>
     </React.StrictMode>

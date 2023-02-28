@@ -1,5 +1,4 @@
 import React,{createContext, useContext, useState, useEffect} from 'react'
-import {Outlet,RouterProvider,Link,ReactRouter,createRouteConfig,} from '@tanstack/react-router'
 import { useAppDispatch, useAppSelector } from '../hooks/useCustomHook';
 import { fetchPokemons } from '../redux/features/pokemonSlice';
 import { eachPokemon, resArray, singlePokemonData, startState } from '../types';
@@ -81,7 +80,10 @@ function ContextWrapper({children}: ChildType) {
     eachPokemons = useAppSelector((state)=> state.eachPokemons)
     }
     const {requiredData} = eachPokemons
+    const sortEach = [...requiredData]
     
+    if(requiredData.length  >=20) sortEach?.sort((a,b) => a?.id - b?.id)
+
     function triggerUrlUpdate() {
         if(allPokemons.pokemon.next){
             setUrl(allPokemons.pokemon.next)
@@ -123,6 +125,7 @@ return () =>{
 
 
     const value = {
+        sortEach,
         allPokemons,
         triggerUrlUpdate, goBack, 
         requiredData
@@ -152,13 +155,13 @@ return () =>{
 // }
 
 const contextType = () =>{
-    const requiredData: singlePokemonData[]= [];
+    const sortEach: singlePokemonData[]= [];
     const allPokemons : any = {}
     function triggerUrlUpdate() {}
     function goBack() {}
 
     return {
-        triggerUrlUpdate, goBack,requiredData ,allPokemons
+        triggerUrlUpdate, goBack,sortEach ,allPokemons
     }
 }
 

@@ -54,12 +54,12 @@ const SideCard = lazy(() => import('./SideCard'));
 function ProductDetail() {
 
 
-  const { triggerUrlUpdate, goBack, requiredData, allPokemons: loading} = useContextProvider()
+  const { triggerUrlUpdate, goBack, sortEach: requiredData, allPokemons: loading} = useContextProvider()
 
 
 
   const div_color  =  useRef<HTMLDivElement>(null!)
-  const searchInput = useRef<any>(null!)
+  const [searchInput,setInputSearch] = useState<string>()
   const[allPokemons, setAllPokemons] = useState([])
   const [sideCard, setSideCard] = useState<CardType>(undefined!)
   const [display ,setDisplay] = useState<boolean>(undefined!)
@@ -81,13 +81,13 @@ function ProductDetail() {
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>)  {
     
     // console.log(e.target.value)
-    setAllPokemons([])
-    searchInput.current.name =  e.target.value
+    
     let timeout
     clearTimeout(timeout);
-      timeout = setTimeout(()=>{
+    timeout = setTimeout(()=>{
       if(data?.data?.results ){ 
         setAllPokemons([])
+        setInputSearch(e.target.value)
         const req = data.data.results.filter((val : resArray) => (
           val.name.includes(e.target.value)
       )
@@ -96,8 +96,9 @@ function ProductDetail() {
         req.map( async (val: resArray) => {
           const call= await axios.get(val.url)
           //prev here maps to each object so instead of directly spreading the allpokemons we spread the prev
-         setAllPokemons( (prev : any) : any =>  [...prev, call.data])
+          if(call) setAllPokemons( (prev : any) : any =>  [...prev, call.data])
         })
+        
       }}, 2000)
   }
   const processChange = debounce((e:  React.ChangeEvent<HTMLInputElement>) => handleChange(e), 500);
@@ -151,16 +152,16 @@ function ProductDetail() {
     <div className='relative flex flex-col gap-y-20 '>
       <img src='pokeball-icon.png' className='fixed -left-20 -top-20'></img>
       <div className='h-16 w-11/12 md+:w-5/6 lg:w-[57%] mx-auto lg:ml-[100px] 2xl:ml-[200px] shadow-md  rounded-xl text-gray-600 outline-none relative z-10 mt-10'>
-        <input type="text" name="search"  className='h-full w-full px-2 rounded-xl text-gray-800 tracking-wide font-medium text-lg outline-none focus:border-gray-300 border-2 border-transparent transition relative' id="" placeholder='Search your pokemon' ref={searchInput}  onChange={processChange}/>
+        <input type="text" name="search"  className='h-full w-full px-2 rounded-xl text-gray-800 tracking-wide font-medium text-lg outline-none focus:border-gray-300 border-2 border-transparent transition relative' id="" placeholder='Search your pokemon' onChange={processChange}/>
         <FaSearch  className='absolute top-1/2 -translate-y-1/2 right-5 h-9 w-9 text-white bg-red-500 shadow-red-400 shadow-lg  p-2 rounded-xl cursor-not-allowed' />
       </div>
     <div> 
       <div className="flex justify-center lg:justify-start ">
       <div className="flex flex-col gap-x-10 lg:gap-x-20">
 
-        <div  className="grid  grid-cols-1 sm:grid-cols-2 md+:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-4 w-1/2 sm:w-full md+:w-[85%] lg:w-[57%] transition-transform duration-300 ease-in-out lg:gap-x-40 gap-y-20   md+:mx-10 lg:ml-[100px] 3xl:ml-[204px]  font-semibold text-lg mt-10">
+        <div  className="grid mb-10  grid-cols-1 sm:grid-cols-2 md+:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-4 w-1/2 sm:w-full md+:w-[85%] lg:w-[57%] transition-transform duration-300 ease-in-out lg:gap-x-40 gap-y-20   md+:mx-10 lg:ml-[100px] 3xl:ml-[204px]  font-semibold text-lg mt-10">
           {(requiredData.length>0 && allPokemons.length<1 ) ? requiredData.map((poke:singlePokemonData)=> 
-            <div key={poke.order} className="card h-40 w-60 lg+:w-80 2xl:w-60  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer mx-auto outline-none sm:ml-5 md:ml-10 lg:ml-0 hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative"  onClick={() => handleClick(poke.id , poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
+            <div key={poke.order} className="card h-40 w-60 lg+:w-80 2xl:w-60  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer mx-auto outline-none sm:ml-5 md:ml-10 lg:ml-0 hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative "  onClick={() => handleClick(poke.id , poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
               <div className='flex justify-center flex-col relative items-center w-full gap-y-1 '  >
                 <img src={poke.sprites.front_default} alt="poke_image" className='absolute  -top-[54px] ' />
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
@@ -174,7 +175,7 @@ function ProductDetail() {
               
             </div>
           ) : (allPokemons.length>0 ) && allPokemons.map((poke:singlePokemonData)=> 
-            <div key={poke.order} className="card h-40 w-60  rounded-xl shadow-md bg-white   flex z-10 cursor-pointer  outline-none  hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative" onClick={() => handleClick(poke.id, poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
+            <div key={poke.order} className="card h-40 w-60  rounded-xl shadow-md bg-white   flex z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0" onClick={() => handleClick(poke.id, poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
               <div className='flex justify-center flex-col relative items-center w-full gap-y-1 '  >
                 <img src={poke.sprites.front_default} alt="poke_image" className='absolute  -top-[54px] ' />
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
@@ -190,14 +191,14 @@ function ProductDetail() {
             </div>
           )}
           </div>
-          <div className="bottom-0 w-max  mx-auto z-20 my-10 text-center gap-x-4 sm:gap-x-10 flex justify-start items-center">
+          {(requiredData.length>0 && !searchInput) && <div className="bottom-0 w-max  mx-auto z-20 mb-10 text-center gap-x-4 sm:gap-x-10 flex justify-start items-center">
           <button className="bg-red-600 rounded-xl text-white shadow-md shadow-red-400 w-max text-base px-3  lg:px-5 py-3" onClick={goBack }>
                 First Page
           </button>
           <button className="bg-gray-400 shadow-md z-20 shadow-gray-500 rounded-xl w-max text-base px-3  lg:px-5 py-3" onClick={triggerUrlUpdate }>
                 Load More
           </button>
-          </div>
+          </div>}
           </div>
             { (isLoading && window.innerWidth >1024) ? (
                   <div className='fixed  h-screen flex items-center w-[350px]  right-10 pb-80  2xl:right-10 3xl:right-20 4xl:right-40 5xl:right-60 z-50'>
