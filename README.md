@@ -1,7 +1,7 @@
 
-# FrontEnd PokeApp with ReactJs , Typescript , React Query and Redux Toolkit
+#  PokeApp  
 
-This is a fullstack project built using the MERN stack (MongoDB, Express, React, Node.js) and GraphQL. Both the frontend and backend parts are built on top of TypeScript, and the server-side GraphQL queries are executed using GraphiQL.
+This is a FrontEnd PokeApp project built using the ReactJs , Typescript , React Query and Redux Toolkit. 
 
 ## Technologies Used
 ####  Redux Toolkit:
