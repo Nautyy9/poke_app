@@ -41,13 +41,6 @@ Install react-redux-project with npm
   npm run dev
 ```
 
-## Contributing
-
-Contributions to the project are welcome. If you find a bug or have a feature request, please open an issue on the repository. If you would like to contribute code, please fork the repository and submit a pull request
-
-
-Please adhere to this project's `code of conduct`.
-
 ## Screenshots
 #### Home Page
 ![App Preview](/public/poke2.png  )
@@ -64,4 +57,10 @@ Please adhere to this project's `code of conduct`.
 #### Loading Design
 ![App Preview](/public/poke4.png  )
 
+## Contributing
+
+Contributions to the project are welcome. If you find a bug or have a feature request, please open an issue on the repository. If you would like to contribute code, please fork the repository and submit a pull request
+
+
+Please adhere to this project's `code of conduct`.
 
