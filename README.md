@@ -1,5 +1,5 @@
 
-# Fullstack MERN Project with GraphQL
+# FrontEnd PokeApp with ReactJs , Typescript , React Query and Redux Toolkit
 
 This is a fullstack project built using the MERN stack (MongoDB, Express, React, Node.js) and GraphQL. Both the frontend and backend parts are built on top of TypeScript, and the server-side GraphQL queries are executed using GraphiQL.
 
