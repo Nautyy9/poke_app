@@ -3,10 +3,10 @@ import { CardType, statType } from '../types'
 import {AiOutlineClose} from 'react-icons/ai'
 
 
-function SideCard( {img, sideCard, display, setDisplay }  : {img: string, sideCard: CardType, display: boolean, setDisplay : React.Dispatch<SetStateAction<boolean>>})  {
+function SideCard( {img, sideCard, display, setDisplay, colors }  : {img: string, sideCard: CardType, display: boolean, setDisplay : React.Dispatch<SetStateAction<boolean>>, colors: Record<string, string>})  {
 
 // const reqColor = color?.slice(4, -1)
-// console.log(reqColor)
+console.log(colors[sideCard?.type])
 return (
     <>
         <div className="hidden  lg:inline-block h-screen w-[350px] xl:w-[450px] 2xl:w-[350px] right-5 xl:right-20 2xl:right-10 3xl:right-20 4xl:right-40 5xl:right-60 bg-white rounded-xl shadow-lg fixed top-36">
@@ -81,7 +81,7 @@ return (
                     <div className="flex flex-col">
                             <h4 className='text-lg text-gray-900 font-semibold text-center'>Evolution</h4>
                             <div className="flex gap-x-4">
-                                <div className="card flex flex-col">
+                                <div className="card1 flex flex-col">
                                 <img src={sideCard?.images?.image1} alt="img1"  className='h-20 w-20 rounded-xl hover:bg-gray-200 transition-colors duration-200 ease-in-out'/>
                                 <p className='text-gray-900 font-semibold text-base text-center'>{sideCard.evolutionName.name1}</p>
                                 </div>
@@ -100,13 +100,13 @@ return (
                 </div>
                     )}
         </div>
-        {display && <div className="  max-h-max overflow-y-scroll w-screen z-50 lg:hidden fixed top-0 left-0 ">
-                <div className={`h-20 sm:h-40  bg-[#df2140]`}>
-                <button className="h-10 w-10 rounded-full mt-4 mr-4 cursor-pointer bg-white shadow-lg shadow-red-400  fixed right-0 z-[60] "  onClick={() => setDisplay(false)}>
-                    <AiOutlineClose className='h-7 w-7 m-auto text-red-500 drop-shadow-md shadow-white'></AiOutlineClose>
+        {display && <div className="block overflow-y-scroll  max-h-max  w-screen z-50 lg:hidden fixed top-0 left-0 ">
+                <div className= {`h-20 sm:h-40 ${sideCard.type ? `bg-[${colors[sideCard?.type]}]` : 'bg-red-500' }`}>
+                <button className="h-12 w-12 rounded-full mt-4 mr-4 cursor-pointer border-white border-4   shadow-gray-800 shadow-md bg-transparent    fixed right-0 z-[60] "  onClick={() => setDisplay(false)}>
+                    <AiOutlineClose className={`h-7 w-7 m-auto text-white  drop-shadow-md `}></AiOutlineClose>
                 </button>
                 </div>
-                <div className='bg-white relative  w-full h-max pb-10 border-b border-black pt-8 sm:pt-10'>
+                <div className=' bg-white relative  w-full h-max pb-10 border-b border-black pt-8 sm:pt-10'>
                     <img src={img} className=' anim_image absolute -top-20 sm:-top-32 w-28 h-28 sm:h-40 sm:w-40 left-1/2 -translate-x-1/2 ' alt="" />
                     <div className="flex flex-col  justify-center items-center gap-y-1 sm:gap-y-4  scroll-m-0">
                     <p className='text-sm text-gray-400'>N° {sideCard.id}</p>

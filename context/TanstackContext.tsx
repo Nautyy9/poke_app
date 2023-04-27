@@ -1,7 +1,7 @@
 import React,{createContext, useContext, useState, useEffect} from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks/useCustomHook';
 import { fetchPokemons } from '../redux/features/pokemonSlice';
-import { eachPokemon, resArray, singlePokemonData, startState } from '../types';
+import { eachPokemon, resArray, singlePokemonData, } from '../types';
 import { fetchEachPokemon } from '../redux/features/eachPokeSlice';
 import { useLayoutEffect } from 'react';
 // const client = new QueryClient()
@@ -82,7 +82,7 @@ function ContextWrapper({children}: ChildType) {
     const {requiredData} = eachPokemons
     const sortEach = [...requiredData]
     
-    if(requiredData.length  >=20) sortEach?.sort((a,b) => a?.id - b?.id)
+    if(requiredData.length>=20) sortEach?.sort((a,b) => a?.id - b?.id)
 
     function triggerUrlUpdate() {
         if(allPokemons.pokemon.next){

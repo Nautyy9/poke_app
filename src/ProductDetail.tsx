@@ -7,7 +7,28 @@ import axios from 'axios';
 const Color = lazy(() => import('./Color'))
 const SideCard = lazy(() => import('./SideCard'));
 
-
+const colors = {
+  "normal" : "#bcbcac",
+  "grass": "#78cd54",
+  fighting: "#bc5442",
+  flying: "#87CEEB",
+  poison: "#ab549d",
+  ground: "#debc54",
+  rock: "#bcac66",
+  bug: "#abbc1c",
+  ghost: "#702963",
+  steel: "#4682B4",
+  fire: "#ff421c",
+  water: "#00FFFF",
+  electric: "#FFEA00",
+  psychic: "#D27D2D",
+  ice: "#F0FFFF",
+  dragon: "#FFC300",
+  dark: "#A9A9A9",
+  fairy: "#ffacff",
+  shadow: "#343434",
+  unknowm: "#ab549d",
+} 
 
 // type suii = typeof pokemonTypes
 // type pokeTypes = keyof suii
@@ -86,10 +107,10 @@ function ProductDetail() {
     clearTimeout(timeout);
     timeout = setTimeout(()=>{
       if(data?.data?.results ){ 
-        setAllPokemons([])
         setInputSearch(e.target.value)
+        setAllPokemons([])
         const req = data.data.results.filter((val : resArray) => (
-          val.name.includes(e.target.value)
+          val.name.toLowerCase().includes(e.target.value.toLowerCase())
       )
         )
         req.length = 20
@@ -103,7 +124,8 @@ function ProductDetail() {
   }
   const processChange = debounce((e:  React.ChangeEvent<HTMLInputElement>) => handleChange(e), 500);
     // setIsLoading(true)
-  async function handleClick(count: number, name: string, height: number, weight: number, abilities: Array<object>, stats: Array<{base_stat: number ,effort: number ,stat :{ name : string ,url :  string}}> ) {
+  async function handleClick(count: number, name: string, height: number, weight: number, abilities: Array<object>, stats: Array<{base_stat: number ,effort: number ,stat :{ name : string ,url :  string}} > , types : Array<{slot : number, type : {name: string, url : string}}> ) {
+
     setDisplay(true)
     setIsLoading(true)
     const species : speciesType = await (await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${name}`)).data
@@ -115,11 +137,12 @@ function ProductDetail() {
     const image1 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain.species.url.replace('https://pokeapi.co/api/v2/pokemon-species/', '').replace('/', '')!}.png`
     const image2 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain?.evolves_to[0]?.species?.url?.replace('https://pokeapi.co/api/v2/pokemon-species/', '').replace('/', '')!}.png`
     const image3 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain?.evolves_to[0]?.evolves_to[0]?.species?.url?.replace('https://pokeapi.co/api/v2/pokemon-species/', '').replace('/', '')!}.png`
+    const pokeType =  types[0].type.name
     if(evolution&& species) {
       setIsLoading(false)
     }
     setSideCard({
-      evolutionName: {name1: evolutionFormat1!,name2:  evolutionFormat2!, name3: evolutionFormat3!}, targetName : name, height : height,weight: weight,abilities : abilities,stats: stats, description: description!, evolvesFrom : evolutionFormat2!, evolvesTo : evolutionFormat3!, images: {image1 : image1!,image2: image2!,image3: image3!}, id: count
+      evolutionName: {name1: evolutionFormat1!,name2:  evolutionFormat2!, name3: evolutionFormat3!}, targetName : name, height : height,weight: weight,abilities : abilities,stats: stats, description: description!, evolvesFrom : evolutionFormat2!, evolvesTo : evolutionFormat3!, images: {image1 : image1!,image2: image2!,image3: image3!}, id: count, type: pokeType
       })
       if(count<650){
         setImg(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${count}.gif`)
@@ -127,24 +150,7 @@ function ProductDetail() {
       else {
         setImg(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${count}.png`)
       }
-      // setIsLoading(false)
-      // setShow(true)
   }
-  // console.log(sideCard)
-
-
-  
-
-  // function filterColor (val: {type: {name: string}, slot: number}) {
-    
-
-  //   const data =  Object.keys(pokemonTypes).filter((prev) => prev === val?.type.name)  
-  //   const some  = data[0]
-  
-  //   if(pokemonTypes[some])
-  //   return(<p className={`bg-[${pokemonTypes[some]}] py-0.5 px-2 rounded-md` } key={val.slot}>{val.type.name}</p>)
-  //   return
-  // }
 
     if(requiredData && allPokemons){
   return (
@@ -160,8 +166,8 @@ function ProductDetail() {
       <div className="flex flex-col gap-x-10 lg:gap-x-20">
 
         <div  className="grid mb-10  grid-cols-1 sm:grid-cols-2 md+:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-4 w-1/2 sm:w-full md+:w-[85%] lg:w-[57%] transition-transform duration-300 ease-in-out lg:gap-x-40 gap-y-20   md+:mx-10 lg:ml-[100px] 3xl:ml-[204px]  font-semibold text-lg mt-10">
-          {(requiredData.length>0 && allPokemons.length<1 ) ? requiredData.map((poke:singlePokemonData)=> 
-            <div key={poke.order} className="card h-40 w-60 lg+:w-80 2xl:w-60  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer mx-auto outline-none sm:ml-5 md:ml-10 lg:ml-0 hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative "  onClick={() => handleClick(poke.id , poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
+          {(!searchInput) ? requiredData.map((poke:singlePokemonData)=> 
+            <div key={poke.order} className="card h-40 w-60 lg+:w-80 2xl:w-60  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer mx-auto outline-none sm:ml-5 md:ml-10 lg:ml-0 hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative "  onClick={() => handleClick(poke.id , poke.name, poke.height, poke.weight, poke.abilities,poke.stats, poke.types)}>
               <div className='flex justify-center flex-col relative items-center w-full gap-y-1 '  >
                 <img src={poke.sprites.front_default} alt="poke_image" className='absolute  -top-[54px] ' />
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
@@ -169,13 +175,13 @@ function ProductDetail() {
                 <div ref={div_color} className='text-sm flex gap-x-3 text-gray-800 mt-2'>
                   {poke.types.map((val) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
                                             <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
-                                          </div>}><Color key={val.slot} val={val}/></Suspense>))}
+                                          </div>}><Color colors={colors} key={val.slot} val={val}/></Suspense>))}
                   </div>
               </div>
               
             </div>
-          ) : (allPokemons.length>0 ) && allPokemons.map((poke:singlePokemonData)=> 
-            <div key={poke.order} className="card h-40 w-60  rounded-xl shadow-md bg-white   flex z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0" onClick={() => handleClick(poke.id, poke.name, poke.height, poke.weight, poke.abilities,poke.stats)}>
+          ) : (searchInput ) && allPokemons.map((poke:singlePokemonData)=> 
+            <div key={poke.order} className="card h-40 w-60  rounded-xl shadow-md bg-white   flex z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0" onClick={() => handleClick(poke.id, poke.name, poke.height, poke.weight, poke.abilities,poke.stats, poke.types)}>
               <div className='flex justify-center flex-col relative items-center w-full gap-y-1 '  >
                 <img src={poke.sprites.front_default} alt="poke_image" className='absolute  -top-[54px] ' />
                 <p className='text-gray-400 text-xs'>N° {poke.id}</p>
@@ -183,7 +189,7 @@ function ProductDetail() {
                 <div className='text-sm flex gap-x-3 text-gray-800 mt-2'>
                   {poke.types.map((val ) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
                                             <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
-                                          </div>}><Color val={val}/></Suspense>
+                                          </div>}><Color colors={colors} val={val}/></Suspense>
                     ))}
                 </div>
               </div>
@@ -209,10 +215,10 @@ function ProductDetail() {
                     <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
                   </div>
               )
-              : (!isLoading && (window.innerWidth <=1024 || window.innerWidth >1024)) && 
+              : (!isLoading) && 
                   <Suspense fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
                   <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
-                </div>}><SideCard img={img} sideCard={sideCard} display={display} setDisplay={setDisplay}/></Suspense> 
+                </div>}><SideCard colors={colors} img={img}  sideCard={sideCard} display={display} setDisplay={setDisplay}/></Suspense> 
               }
           </div>
     </div>
