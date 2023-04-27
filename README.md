@@ -49,17 +49,19 @@ Contributions to the project are welcome. If you find a bug or have a feature re
 Please adhere to this project's `code of conduct`.
 
 ## Screenshots
+#### Home Page
+![App Preview](/public/poke2.png  )
+
+#### More Data(Load More)
+![App Preview](/public/poke3.png  )
 
 #### Responsive Design
 ![App Preview](/public/poke1.png  )
 
-#### Home Page
-![App Preview](/public/poke2.png  )
-#### More Data(Load More)
-![App Preview](/public/poke3.png  )
+#### Side Card with Responsive Design
+![App Preview](/public/poke5.png )
+
 #### Loading Design
 ![App Preview](/public/poke4.png  )
-#### More Data(Load More)
-![App Preview](/public/poke3.png  )
-#### Side Card with Responsive Design
-![App Preview](/public/poke4.png )
+
+
