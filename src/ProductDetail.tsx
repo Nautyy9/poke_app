@@ -175,7 +175,7 @@ function ProductDetail() {
                 <div ref={div_color} className='text-sm flex gap-x-3 text-gray-800 mt-2'>
                   {poke.types.map((val) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
                                             <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
-                                          </div>}><Color colors={colors} key={val.slot} val={val}/></Suspense>))}
+                                          </div>}><Color key={val.slot} val={val}/></Suspense>))}
                   </div>
               </div>
               
@@ -189,7 +189,7 @@ function ProductDetail() {
                 <div className='text-sm flex gap-x-3 text-gray-800 mt-2'>
                   {poke.types.map((val ) =>( <Suspense key={val.slot} fallback={<div className='fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50'>
                                             <img src="pokeball-icon.png" className='animate-spin h-20 w-20 filter brightness-50' alt="loading_spinner" />
-                                          </div>}><Color colors={colors} val={val}/></Suspense>
+                                          </div>}><Color val={val}/></Suspense>
                     ))}
                 </div>
               </div>
