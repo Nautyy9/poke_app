@@ -1,10 +1,10 @@
 
 #  PokeApp  
+This is a FrontEnd PokeApp project built using the ReactJs , Typescript , React Query and Redux Toolkit. 
 
 ## URL
 https://poke-app-woad.vercel.app/
 
-This is a FrontEnd PokeApp project built using the ReactJs , Typescript , React Query and Redux Toolkit. 
 
 ## Technologies Used
 ####  Redux Toolkit:
