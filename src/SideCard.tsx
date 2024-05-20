@@ -76,7 +76,7 @@ function SideCard({
           </div>
         ) : (
           sideCard && (
-            <div className="overflow-y-scroll overscroll-contain scrollcheck ">
+            <div className="scrollCheck " id="style-2">
               <img
                 src={img}
                 className="anim_image absolute -top-24 h-40  w-40 left-1/2 -translate-x-1/2 "
@@ -111,15 +111,15 @@ function SideCard({
                     </h5>
                   </div>
                 </div>
-                <div className="flex flex-col  gap-y-3">
+                <div className="flex flex-col w-full gap-y-3">
                   <h3 className="text-lg text-gray-900 font-semibold  text-center">
                     Abilities
                   </h3>
-                  <div className="flex gap-x-4 items-center justify-center">
+                  <div className="flex gap-x-4 items-center justify-center ">
                     {sideCard.abilities.map((val: any) => (
                       <h5
                         key={val.slot}
-                        className="flex bg-gray-200 rounded-xl text-center py-1 px-3 min-w-fit max-w-32 "
+                        className="flex bg-gray-200 rounded-xl text-center py-1 px-3  min-w-fit max-w-32 "
                       >
                         {val.ability.name}
                       </h5>
