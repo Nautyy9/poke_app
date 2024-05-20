@@ -94,7 +94,6 @@ function ContextWrapper({ children }: ChildType) {
   }
   const { requiredData } = eachPokemons;
   const sortEach = [...requiredData];
-  console.log("here");
   if (requiredData.length >= 20) {
     sortPoke(sortEach);
   }
