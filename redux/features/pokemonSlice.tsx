@@ -10,7 +10,7 @@ const initialState: startState = {
 }
 
 export const fetchPokemons= createAsyncThunk('poke/getPokemons', async(url : string) =>{
-        return await (await axios.get(`${url}`).then((res: AxiosResponse<fetchType>) => res.data).catch((err) =>err))
+    return await (await axios.get(`${url}`).then((res: AxiosResponse<fetchType>) => res.data).catch((err) =>err))
 })
 
 
