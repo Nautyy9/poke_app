@@ -8,12 +8,12 @@ async function fetchAllPokemons() {
     .catch((err) => err);
 }
 
-// async function fetchSidePokemons(count: number) {
-//   return await axios
-//     .get(``)
-//     .then((res) => res.data)
-//     .catch((err) => err);
-// }
+async function fetchSidePokemons(count: number) {
+  return await axios
+    .get(``)
+    .then((res) => res.data)
+    .catch((err) => err);
+}
 
 export async function pokemonResult(url: string) {
   return await axios
@@ -26,22 +26,22 @@ export function getAllPokemons() {
   return useQuery("pokemon", fetchAllPokemons);
 }
 
-// export function sideDetails(count: number) {
-//   return useQuery("sidepokemonns", () => fetchSidePokemons(count));
-// }
+export function sideDetails(count: number) {
+  return useQuery("sidepokemonns", () => fetchSidePokemons(count));
+}
 
-// export function getRequiredPokemon(url: string) {
-//   const onSuccess = () => {
-//     // console.log('fetching')
-//   };
-//   const onError = () => {
-//     // console.log('error fetching')
-//   };
+export function getRequiredPokemon(url: string) {
+  const onSuccess = () => {
+    console.log("fetching");
+  };
+  const onError = () => {
+    console.log("error fetching");
+  };
 
-//   const { data } = useQuery("req_pokemons", () => pokemonResult(url), {
-//     onSuccess,
-//     onError,
-//     enabled: !!url,
-//   });
-//   return data;
-// }
+  const { data } = useQuery("req_pokemons", () => pokemonResult(url), {
+    onSuccess,
+    onError,
+    enabled: !!url,
+  });
+  return data;
+}

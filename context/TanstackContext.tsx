@@ -101,6 +101,7 @@ function ContextWrapper({ children }: ChildType) {
     sortPoke(sortEach);
   }
   function triggerUrlUpdate() {
+    console.log(allPokemons);
     if (allPokemons.pokemon.next) {
       setUrl(allPokemons.pokemon.next);
       setInitialButton(true);
@@ -127,9 +128,8 @@ function ContextWrapper({ children }: ChildType) {
     setPrevButton(false);
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // addEventListener("scroll" , throttledUpdateLayout)
-
     dispatch(fetchPokemons(url));
   }, [url]);
 
