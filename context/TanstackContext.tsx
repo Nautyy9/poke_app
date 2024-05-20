@@ -73,6 +73,7 @@ type ChildType = {
 // }
 
 // !    Main
+let nextUrl = "";
 function ContextWrapper({ children }: ChildType) {
   const sortPoke = useMemo(
     () => (pokeArr: singlePokemonData[]) => {
@@ -83,7 +84,6 @@ function ContextWrapper({ children }: ChildType) {
   const [url, setUrl] = useState("");
   const [initialButton, setInitialButton] = useState(false);
   const [prevButton, setPrevButton] = useState(false);
-
   const dispatch = useAppDispatch();
   let initialUrl = "https://pokeapi.co/api/v2/pokemon";
 
@@ -100,10 +100,12 @@ function ContextWrapper({ children }: ChildType) {
   if (requiredData.length >= 20) {
     sortPoke(sortEach);
   }
+  if (allPokemons.pokemon.next) {
+    nextUrl = allPokemons.pokemon.next;
+  }
   function triggerUrlUpdate() {
-    console.log(allPokemons);
-    if (allPokemons.pokemon.next) {
-      setUrl(allPokemons.pokemon.next);
+    if (nextUrl) {
+      setUrl(nextUrl);
       setInitialButton(true);
       setPrevButton(true);
     }

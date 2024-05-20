@@ -210,6 +210,8 @@ function ProductDetail() {
           `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${count}.png`
         );
       }
+      setIsLoading(false);
+      setDisplay(true);
     } catch (e) {
       setIsLoading(false);
       setDisplay(true);
@@ -336,7 +338,7 @@ function ProductDetail() {
               </div>
               {requiredData.length > 0 && !searchInput && (
                 <div className="w-full flex-wrap gap-y-5 sm:w-11/12 md+:w-5/6 lg:w-[57%]  z-20 mb-10 text-center gap-x-4 sm:gap-x-10 flex justify-center  items-center">
-                  {initialButton && (
+                  {initialButton && !isLoading && (
                     <button
                       className="bg-red-600  rounded-xl text-white shadow-md shadow-red-800 w-40 text-base px-3  lg:px-5 py-3"
                       onClick={gotoFirst}
@@ -344,7 +346,7 @@ function ProductDetail() {
                       First Page
                     </button>
                   )}
-                  {prevButton && (
+                  {prevButton && !isLoading && (
                     <button
                       className="bg-gray-600 rounded-xl text-white shadow-md shadow-gray-800 w-40 text-base px-3  lg:px-5 py-3"
                       onClick={goBack}
