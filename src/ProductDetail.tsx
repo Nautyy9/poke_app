@@ -237,7 +237,7 @@ function ProductDetail() {
         <div>
           <div className="flex  justify-center w-full  lg:justify-start ">
             <div className="flex flex-col justify-center items-center lg:items-start mx-5  ">
-              <div className="flex flex-wrap mb-10 w-full   lg:w-[57%] transition-transform duration-300 ease-in-out gap-x-5  xl:gap-x-10  gap-y-20 md+:mx-10  2xl:mx-0 justify-center items-center  text-lg ">
+              <div className="flex flex-wrap  mb-10 w-full   lg:w-[57%] transition-transform duration-300 ease-in-out gap-x-5  xl:gap-x-10  gap-y-20 md+:mx-10  2xl:mx-20 justify-center items-center  text-lg ">
                 {!searchInput
                   ? requiredData.map((poke: singlePokemonData) => (
                       <div
@@ -291,7 +291,7 @@ function ProductDetail() {
                     allPokemons.map((poke: singlePokemonData) => (
                       <div
                         key={poke.order}
-                        className="card h-40 w-60  rounded-xl shadow-md bg-white   flex z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0"
+                        className="card  h-40 w-80 flex justify-center  rounded-xl shadow-md bg-white z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0"
                         onClick={() =>
                           handleClick(
                             poke.id,
@@ -304,7 +304,7 @@ function ProductDetail() {
                           )
                         }
                       >
-                        <div className="flex justify-center flex-col relative items-center w-full gap-y-1 ">
+                        <div className="flex justify-center flex-col relative items-center w- gap-y-1 ">
                           <img
                             src={poke.sprites.front_default}
                             alt="poke_image"
@@ -335,10 +335,10 @@ function ProductDetail() {
                     ))}
               </div>
               {requiredData.length > 0 && !searchInput && (
-                <div className="w-full flex-wrap  sm:w-11/12 md+:w-5/6 lg:w-[57%]  z-20 mb-10 text-center gap-x-4 sm:gap-x-10 flex justify-center  items-center">
+                <div className="w-full flex-wrap gap-y-5 sm:w-11/12 md+:w-5/6 lg:w-[57%]  z-20 mb-10 text-center gap-x-4 sm:gap-x-10 flex justify-center  items-center">
                   {initialButton && (
                     <button
-                      className="bg-red-600 rounded-xl text-white shadow-md shadow-red-800 w-max text-base px-3  lg:px-5 py-3"
+                      className="bg-red-600  rounded-xl text-white shadow-md shadow-red-800 w-40 text-base px-3  lg:px-5 py-3"
                       onClick={gotoFirst}
                     >
                       First Page
@@ -346,14 +346,14 @@ function ProductDetail() {
                   )}
                   {prevButton && (
                     <button
-                      className="bg-gray-600 rounded-xl text-white shadow-md shadow-gray-800 w-max text-base px-3  lg:px-5 py-3"
+                      className="bg-gray-600 rounded-xl text-white shadow-md shadow-gray-800 w-40 text-base px-3  lg:px-5 py-3"
                       onClick={goBack}
                     >
                       Previous Page
                     </button>
                   )}
                   <button
-                    className="bg-green-400 shadow-md z-20 shadow-green-500 rounded-xl w-max text-base px-3  lg:px-5 py-3 text-white"
+                    className="bg-green-400 shadow-md z-20 shadow-green-500 rounded-xl w-40 text-base px-3  lg:px-5 py-3 text-white"
                     onClick={triggerUrlUpdate}
                   >
                     Load More

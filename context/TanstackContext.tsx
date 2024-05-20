@@ -128,32 +128,24 @@ function ContextWrapper({ children }: ChildType) {
   }
 
   useLayoutEffect(() => {
-    let controller = false;
-
     // addEventListener("scroll" , throttledUpdateLayout)
-    if (!controller) {
-      dispatch(fetchPokemons(url));
-    }
-    return () => {
-      controller = true;
-    };
+
+    dispatch(fetchPokemons(url));
   }, [url]);
 
   useEffect(() => {
-    let abort = false;
+    let abort = true;
     // addEventListener("scroll" , throttledUpdateLayout)
-    if (!abort) {
-      allPokemons.pokemon.results &&
-        allPokemons.pokemon.results.map((suii: resArray) => {
-          // console.log(allPokemons.pokemon, "in");
-
+    allPokemons.pokemon.results &&
+      allPokemons.pokemon.results.map((suii: resArray) => {
+        // console.log(allPokemons.pokemon, "in");
+        if (abort) {
           dispatch(fetchEachPokemon(suii?.url));
-
-          // dispatch(() => increasePoke)
-        });
-    }
+        }
+        // dispatch(() => increasePoke)
+      });
     return () => {
-      abort = true;
+      abort = false;
     };
   }, [allPokemons.pokemon.next]);
 
