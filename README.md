@@ -1,7 +1,10 @@
 
-# Fullstack MERN Project with GraphQL
+#  PokeApp  
+This is a FrontEnd PokeApp project built using the ReactJs , Typescript , React Query and Redux Toolkit. 
 
-This is a fullstack project built using the MERN stack (MongoDB, Express, React, Node.js) and GraphQL. Both the frontend and backend parts are built on top of TypeScript, and the server-side GraphQL queries are executed using GraphiQL.
+## URL
+https://poke-app-woad.vercel.app/
+
 
 ## Technologies Used
 ####  Redux Toolkit:
@@ -41,6 +44,22 @@ Install react-redux-project with npm
   npm run dev
 ```
 
+## Screenshots
+#### Home Page
+![App Preview](/public/poke2.png  )
+
+#### More Data(Load More)
+![App Preview](/public/poke3.png  )
+
+#### Responsive Design
+![App Preview](/public/poke1.png  )
+
+#### Side Card with Responsive Design
+![App Preview](/public/poke5.png )
+
+#### Loading Design
+![App Preview](/public/poke4.png  )
+
 ## Contributing
 
 Contributions to the project are welcome. If you find a bug or have a feature request, please open an issue on the repository. If you would like to contribute code, please fork the repository and submit a pull request
@@ -48,18 +67,3 @@ Contributions to the project are welcome. If you find a bug or have a feature re
 
 Please adhere to this project's `code of conduct`.
 
-## Screenshots
-
-#### Responsive Design
-![App Preview](/public/poke1.png  )
-
-#### Home Page
-![App Preview](/public/poke2.png  )
-#### More Data(Load More)
-![App Preview](/public/poke3.png  )
-#### Loading Design
-![App Preview](/public/poke4.png  )
-#### More Data(Load More)
-![App Preview](/public/poke3.png  )
-#### Side Card with Responsive Design
-![App Preview](/public/poke4.png )
