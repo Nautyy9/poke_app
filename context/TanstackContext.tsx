@@ -81,12 +81,15 @@ function ContextWrapper({ children }: ChildType) {
     []
   );
   const [url, setUrl] = useState("");
+  const [initialButton, setInitialButton] = useState(false);
+  const [prevButton, setPrevButton] = useState(false);
+
   const dispatch = useAppDispatch();
   let initialUrl = "https://pokeapi.co/api/v2/pokemon";
 
-  window.onload = () => {
+  useEffect(() => {
     setUrl("https://pokeapi.co/api/v2/pokemon");
-  };
+  }, []);
   const { allPokemons } = useAppSelector((state) => state);
   let eachPokemons: eachPokemon | Record<string, never> = {};
   if (allPokemons.pokemon) {
@@ -97,36 +100,52 @@ function ContextWrapper({ children }: ChildType) {
   if (requiredData.length >= 20) {
     sortPoke(sortEach);
   }
-
   function triggerUrlUpdate() {
     if (allPokemons.pokemon.next) {
       setUrl(allPokemons.pokemon.next);
+      setInitialButton(true);
+      setPrevButton(true);
     }
   }
+
   function goBack() {
+    // console.log(allPokemons.pokemon);
+    if (
+      allPokemons.pokemon.previous ===
+      "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20"
+    ) {
+      setInitialButton(false);
+      setPrevButton(false);
+    }
+    if (allPokemons.pokemon.previous !== null) {
+      setUrl(allPokemons.pokemon.previous);
+    }
+  }
+  function gotoFirst() {
     setUrl(initialUrl);
+    setInitialButton(false);
+    setPrevButton(false);
   }
 
   useLayoutEffect(() => {
-    const controller = new AbortController();
+    let controller = false;
 
     // addEventListener("scroll" , throttledUpdateLayout)
-    if (controller.signal) {
+    if (!controller) {
       dispatch(fetchPokemons(url));
     }
     return () => {
-      controller.abort();
+      controller = true;
     };
   }, [url]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
+    let abort = false;
     // addEventListener("scroll" , throttledUpdateLayout)
-    if (controller.signal) {
+    if (!abort) {
       allPokemons.pokemon.results &&
         allPokemons.pokemon.results.map((suii: resArray) => {
-          console.log(allPokemons.pokemon, "in");
+          // console.log(allPokemons.pokemon, "in");
 
           dispatch(fetchEachPokemon(suii?.url));
 
@@ -134,7 +153,7 @@ function ContextWrapper({ children }: ChildType) {
         });
     }
     return () => {
-      controller.abort();
+      abort = true;
     };
   }, [allPokemons.pokemon.next]);
 
@@ -142,6 +161,9 @@ function ContextWrapper({ children }: ChildType) {
     sortEach,
     allPokemons,
     triggerUrlUpdate,
+    gotoFirst,
+    initialButton,
+    prevButton,
     goBack,
     requiredData,
   };
@@ -151,7 +173,7 @@ function ContextWrapper({ children }: ChildType) {
   // setSearchInput: React.Dispatch<React.SetStateAction<string>>;
   // handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   // triggerUrlUpdate: () => void;
-  // goBack: () => void;
+  // gotoFirst: () => void;
   // requiredData: singlePokemonData[];
 
   return <authContext.Provider value={value}>{children}</authContext.Provider>;
@@ -168,11 +190,17 @@ const contextType = () => {
   const sortEach: singlePokemonData[] = [];
   const allPokemons: any = {};
   function triggerUrlUpdate() {}
+  function gotoFirst() {}
   function goBack() {}
+  const initialButton: boolean = false;
+  const prevButton: boolean = false;
 
   return {
     triggerUrlUpdate,
+    gotoFirst,
     goBack,
+    initialButton,
+    prevButton,
     sortEach,
     allPokemons,
   };
