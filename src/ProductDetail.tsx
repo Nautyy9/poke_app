@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, lazy, Suspense, useMemo } from "react";
 import { FaSearch } from "react-icons/fa";
 import {
   CardType,
@@ -65,20 +65,7 @@ function ProductDetail() {
   const [fetchSpecies] = useLazyGetPokemonSpeciesQuery();
   const [fetchEvolution] = useLazyGetEvolutionChainQuery();
 
-  function debounce(
-    func: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    timeout = 300
-  ) {
-    let timer: NodeJS.Timeout;
-    return (...args: any) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func.apply(this, args);
-      }, timeout);
-    };
-  }
-
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputSearch(value);
     if (!value) {
@@ -96,9 +83,20 @@ function ProductDetail() {
       );
       setSearchResults(details);
     }
-  }
+  };
 
-  const processChange = debounce(handleChange, 500);
+  const processChange = useMemo(() => {
+    let timer: NodeJS.Timeout;
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value; // Capture value before timeout
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        // Create a fake event object or just pass the value
+        const fakeEvent = { target: { value } } as React.ChangeEvent<HTMLInputElement>;
+        handleChange(fakeEvent);
+      }, 500);
+    };
+  }, [allNamesData, fetchPokemonDetail]);
 
   async function handleCardClick(data: any) {
     try {

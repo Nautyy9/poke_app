@@ -4,8 +4,8 @@ import { pokemonApi } from "../services/pokemonApi";
 const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      immutableCheck: true,
-      serializableCheck: true,
+      immutableCheck: false,
+      serializableCheck: false,
     }).concat(pokemonApi.middleware),
   reducer: {
     [pokemonApi.reducerPath]: pokemonApi.reducer,
