@@ -37,5 +37,7 @@ export const {
   useGetPokemonByNameQuery,
   useLazyGetPokemonByNameQuery,
   useGetPokemonSpeciesQuery,
-  useGetEvolutionChainQuery 
+  useLazyGetPokemonSpeciesQuery,
+  useGetEvolutionChainQuery,
+  useLazyGetEvolutionChainQuery
 } = pokemonApi;
