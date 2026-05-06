@@ -1,16 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import allPokemons from "../features/pokemonSlice";
-import eachPokemons from "../features/eachPokeSlice";
+import { pokemonApi } from "../services/pokemonApi";
 
 const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      immutableCheck: false,
-      serializableCheck: false,
-    }),
+      immutableCheck: true,
+      serializableCheck: true,
+    }).concat(pokemonApi.middleware),
   reducer: {
-    allPokemons,
-    eachPokemons,
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
   },
 });
 export default store;

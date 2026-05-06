@@ -2,183 +2,77 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
-  useCallback,
-  useLayoutEffect,
   useMemo,
 } from "react";
-import { useAppDispatch, useAppSelector } from "../hooks/useCustomHook";
-import { fetchPokemons } from "../redux/features/pokemonSlice";
-import { eachPokemon, resArray, singlePokemonData } from "../types";
-import { fetchEachPokemon } from "../redux/features/eachPokeSlice";
-// const client = new QueryClient()
-
-// const TanStackRouterDevtools =
-//     process.env.NODE_ENV === 'production' ? () => null // Render nothing in production
-//     : React.lazy(() =>
-//         // Lazy load in development
-//         import('@tanstack/react-router-devtools').then(
-//           (res) => ({
-//             default: res.TanStackRouterDevtools
-//             // For Embedded Mode
-//             // default: res.TanStackRouterDevtoolsPanel
-//           })
-//         ),
-//       )
+import { singlePokemonData } from "../types";
+import { useGetPokemonsQuery, useGetPokemonByNameQuery } from "../redux/services/pokemonApi";
 
 type ChildType = {
   children: React.ReactNode;
 };
 
-// const tanstack = () =>{
-//     const rootRoute : any= createRouteConfig({
-//         component : () =>{
-//             return(
-//                 <QueryClientProvider client={client}>
-//                 <Link to='/'></Link>
-//                 <br></br>
-//                 <Link to='/products'></Link>
-//                 <br></br>
-//                 <Link to='/about'></Link>
-//                 {/* <ContextWrapperRouterDevtools></ContextWrapperRouterDevtools> */}
-//                 <Outlet></Outlet>
-//                 <ReactQueryDevtools/>
-//                 </QueryClientProvider>
-//             )
-//         }
-//     });
-//     const homeRoute = rootRoute.createRoute({
-//         path: '/',
-//         component: Home
-//     })
-//     const aboutRoute = rootRoute.createRoute({
-//         path: '/about',
-//         component: About
-//     })
-//     const productRoute = rootRoute.createRoute({
-//         path: '/products',
-//         component: Product
-//     })
-//     const routeConfig = rootRoute.addChildren([homeRoute, aboutRoute, productRoute])
-//     const router = new ReactRouter({routeConfig})
-//     return {router}
-// }
+function PokemonDetailWrapper({ name, onLoaded }: { name: string; onLoaded: (data: singlePokemonData) => void }) {
+  const { data } = useGetPokemonByNameQuery(name);
+  useMemo(() => {
+    if (data) onLoaded(data);
+  }, [data, onLoaded]);
+  return null;
+}
 
-// function useCallbackRef (cb :any) {
-//     const  myRef = useRef(cb)
-//     useLayoutEffect(() =>{
-//         myRef.current = cb
-//     }, [cb])
-//     return  myRef
-// }
-
-// !    Main
-let nextUrl = "";
 function ContextWrapper({ children }: ChildType) {
-  const sortPoke = useMemo(
-    () => (pokeArr: singlePokemonData[]) => {
-      pokeArr.sort((a, b) => a?.id - b?.id);
-    },
-    []
-  );
-  const [url, setUrl] = useState("");
-  const [initialButton, setInitialButton] = useState(false);
-  const [prevButton, setPrevButton] = useState(false);
-  const dispatch = useAppDispatch();
-  let initialUrl = "https://pokeapi.co/api/v2/pokemon";
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
 
-  useEffect(() => {
-    setUrl("https://pokeapi.co/api/v2/pokemon");
+  const { data: listData, isLoading, isFetching } = useGetPokemonsQuery({ offset, limit });
+  const [requiredData, setRequiredData] = useState<singlePokemonData[]>([]);
+
+  // Clear and update requiredData when page changes
+  useMemo(() => {
+    if (listData) {
+      setRequiredData([]);
+    }
+  }, [offset, listData]);
+
+  const handlePokemonLoaded = useMemo(() => (data: singlePokemonData) => {
+    setRequiredData((prev) => {
+      if (prev.find(p => p.id === data.id)) return prev;
+      const newArr = [...prev, data];
+      return newArr.sort((a, b) => a.id - b.id);
+    });
   }, []);
-  const { allPokemons } = useAppSelector((state) => state);
-  let eachPokemons: eachPokemon | Record<string, never> = {};
-  if (allPokemons.pokemon) {
-    eachPokemons = useAppSelector((state) => state.eachPokemons);
-  }
-  const { requiredData } = eachPokemons;
-  const sortEach = [...requiredData];
-  if (requiredData.length >= 20) {
-    sortPoke(sortEach);
-  }
-  if (allPokemons.pokemon.next) {
-    nextUrl = allPokemons.pokemon.next;
-  }
-  function triggerUrlUpdate() {
-    if (nextUrl) {
-      setUrl(nextUrl);
-      setInitialButton(true);
-      setPrevButton(true);
-    }
-  }
 
-  function goBack() {
-    // console.log(allPokemons.pokemon);
-    if (
-      allPokemons.pokemon.previous ===
-      "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20"
-    ) {
-      setInitialButton(false);
-      setPrevButton(false);
-    }
-    if (allPokemons.pokemon.previous !== null) {
-      setUrl(allPokemons.pokemon.previous);
-    }
-  }
-  function gotoFirst() {
-    setUrl(initialUrl);
-    setInitialButton(false);
-    setPrevButton(false);
-  }
+  const triggerUrlUpdate = () => {
+    if (listData?.next) setOffset((prev) => prev + limit);
+  };
 
-  useEffect(() => {
-    // addEventListener("scroll" , throttledUpdateLayout)
-    dispatch(fetchPokemons(url));
-  }, [url]);
+  const goBack = () => {
+    if (offset > 0) setOffset((prev) => Math.max(0, prev - limit));
+  };
 
-  useEffect(() => {
-    let abort = true;
-    // addEventListener("scroll" , throttledUpdateLayout)
-    allPokemons.pokemon.results &&
-      allPokemons.pokemon.results.map((suii: resArray) => {
-        // console.log(allPokemons.pokemon, "in");
-        if (abort) {
-          dispatch(fetchEachPokemon(suii?.url));
-        }
-        // dispatch(() => increasePoke)
-      });
-    return () => {
-      abort = false;
-    };
-  }, [allPokemons.pokemon.next]);
+  const gotoFirst = () => {
+    setOffset(0);
+  };
 
   const value = {
-    sortEach,
-    allPokemons,
+    sortEach: requiredData,
+    allPokemons: { loading: isLoading || isFetching },
     triggerUrlUpdate,
     gotoFirst,
-    initialButton,
-    prevButton,
+    initialButton: offset > 0,
+    prevButton: offset > 0,
     goBack,
     requiredData,
   };
 
-  // router: ReactRouter<any, AllRouteInfo<any>, unknown>;
-  // searchInput: string;
-  // setSearchInput: React.Dispatch<React.SetStateAction<string>>;
-  // handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  // triggerUrlUpdate: () => void;
-  // gotoFirst: () => void;
-  // requiredData: singlePokemonData[];
-
-  return <authContext.Provider value={value}>{children}</authContext.Provider>;
+  return (
+    <authContext.Provider value={value}>
+      {listData?.results.map((p) => (
+        <PokemonDetailWrapper key={p.name} name={p.name} onLoaded={handlePokemonLoaded} />
+      ))}
+      {children}
+    </authContext.Provider>
+  );
 }
-
-// const {router} = tanstack()
-// declare module "@tanstack/react-router" {
-//     interface RegisterRouter{
-//         router : typeof router
-//     }
-// }
 
 const contextType = () => {
   const sortEach: singlePokemonData[] = [];
@@ -188,6 +82,7 @@ const contextType = () => {
   function goBack() {}
   const initialButton: boolean = false;
   const prevButton: boolean = false;
+  const requiredData: singlePokemonData[] = [];
 
   return {
     triggerUrlUpdate,
@@ -197,21 +92,12 @@ const contextType = () => {
     prevButton,
     sortEach,
     allPokemons,
+    requiredData
   };
 };
 
-//                                                           ^?
-
-// type hello = typeof router.'#private'
-// type authRoute = typeof router
 type authRoute = ReturnType<typeof contextType>;
 
 export const authContext = createContext<authRoute>(null!);
-
-// export const devtools = () =>{
-
-//     return <TanStackRouterDevtools router={router} initialIsOpen={true} ></TanStackRouterDevtools>
-// }
-
 export const useContextProvider = () => useContext(authContext);
 export default ContextWrapper;

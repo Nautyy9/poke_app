@@ -1,15 +1,17 @@
-import React, { useState, useRef, lazy, Suspense } from "react";
+import React, { useState, useRef, lazy, Suspense, useMemo } from "react";
 import { FaSearch } from "react-icons/fa";
 import {
   CardType,
-  evolutionType,
   resArray,
   singlePokemonData,
-  speciesType,
 } from "../types";
 import { useContextProvider } from "../context/TanstackContext";
-import { getAllPokemons } from "../hooks/useReactQuery";
-import axios from "axios";
+import { 
+  useGetPokemonsQuery, 
+  useLazyGetPokemonByNameQuery,
+  useLazyGetPokemonSpeciesQuery,
+  useLazyGetEvolutionChainQuery
+} from "../redux/services/pokemonApi";
 const Color = lazy(() => import("./Color"));
 const SideCard = lazy(() => import("./SideCard"));
 
@@ -36,48 +38,6 @@ const colors = {
   unknowm: "#ab549d",
 };
 
-// type suii = typeof pokemonTypes
-// type pokeTypes = keyof suii
-
-// const initialState = {
-//   loading: false,
-//   SideCard:  {} as CardType,
-//   img: ""
-// }
-// type stateType = typeof initialState;
-// enum type {
-//   loading,
-//   SideCard,
-//   img,
-// }
-// type actionType = {
-//   type: type.SideCard
-//   payload:  CardType
-// } | {
-//     type: type.loading
-//     payload: boolean
-//   } | {
-//     type: type.img
-//     payload: string
-//   }
-// function reducer (state : stateType , action : actionType){
-//   switch (action.type) {
-
-//     case type.loading :
-//     return {
-//       loading : !state.loading,
-//       SideCard : {},
-//       img: ""
-//     }
-//     case type.SideCard :
-//       return {
-//         loading : state.loading,
-//         SideCard : action.payload,
-//         img: ""
-//     }
-//   }
-// }
-
 function ProductDetail() {
   const {
     goBack,
@@ -90,21 +50,23 @@ function ProductDetail() {
   } = useContextProvider();
 
   const div_color = useRef<HTMLDivElement>(null!);
-  const [searchInput, setInputSearch] = useState<string>();
-  const [allPokemons, setAllPokemons] = useState([]);
+  const [searchInput, setInputSearch] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<singlePokemonData[]>([]);
   const [sideCard, setSideCard] = useState<CardType | null>(null);
-  const [display, setDisplay] = useState<boolean>(undefined!);
+  const [display, setDisplay] = useState<boolean>(false);
   const [nodataText, setNodataText] = useState<string>(
     "Select a Pokemon to display here."
   );
-  // const [state, dispatch] = useReducer(reducer, initialState)
   const [img, setImg] = useState("");
-  const data = getAllPokemons();
-  // const [show, setShow] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
 
+  const { data: allNamesData } = useGetPokemonsQuery({ offset: 0, limit: 2000 });
+  const [fetchPokemonDetail] = useLazyGetPokemonByNameQuery();
+  const [fetchSpecies] = useLazyGetPokemonSpeciesQuery();
+  const [fetchEvolution] = useLazyGetEvolutionChainQuery();
+
   function debounce(
-    func: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
+    func: (e: React.ChangeEvent<HTMLInputElement>) => void,
     timeout = 300
   ) {
     let timer: NodeJS.Timeout;
@@ -117,41 +79,27 @@ function ProductDetail() {
   }
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    // console.log(e.target.value)
-    // making a timeout for input field slowed results else wrong results
-    let timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(async () => {
-      if (data?.data?.results) {
-        setInputSearch(e.target.value);
-        setAllPokemons([]);
-        const req = data.data.results.filter((val: resArray) =>
-          val.name.toLowerCase().includes(e.target.value.toLowerCase())
-        );
-        req.length = 20;
+    const value = e.target.value;
+    setInputSearch(value);
+    if (!value) {
+      setSearchResults([]);
+      return;
+    }
 
-        /*
-        // ISSUE: Calling setAllPokemons inside map triggers up to 20 re-renders
-        req.map(async (val: resArray) => {
-          const call = await axios.get(val.url);
-          //prev here maps to each object so instead of directly spreading the allpokemons we spread the prev
-          if (call) setAllPokemons((prev: any): any => [...prev, call.data]);
-        });
-        */
+    if (allNamesData?.results) {
+      const filtered = allNamesData.results.filter((val: resArray) =>
+        val.name.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 20);
 
-        // Optimization: Fetch all details in parallel and update state once
-        const results = await Promise.all(
-          req.map((val: resArray) => axios.get(val.url).then((res) => res.data))
-        );
-        setAllPokemons(results as any);
-      }
-    }, 500); // Reduced delay from 2000ms to 500ms
+      const details = await Promise.all(
+        filtered.map((p) => fetchPokemonDetail(p.name).unwrap())
+      );
+      setSearchResults(details);
+    }
   }
-  const processChange = debounce(
-    (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e),
-    500
-  );
-  // setIsLoading(true)
+
+  const processChange = debounce(handleChange, 500);
+
   async function handleClick(
     count: number,
     name: string,
@@ -169,69 +117,61 @@ function ProductDetail() {
       setNodataText("");
       setDisplay(true);
       setIsLoading(true);
-      const species: speciesType = await (
-        await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${name}`)
-      ).data;
-      const description: string = species?.flavor_text_entries[6]?.flavor_text!;
-      const evolution: evolutionType = await (
-        await axios.get(species?.evolution_chain.url)
-      ).data;
+
+      const species = await fetchSpecies(name).unwrap();
+      const description = species.flavor_text_entries.find(e => e.language.name === "en")?.flavor_text || "No description available.";
+      
+      const evolution = await fetchEvolution(species.evolution_chain.url).unwrap();
+      
       const evolutionFormat1 = evolution?.chain?.species?.name;
       const evolutionFormat2 = evolution?.chain?.evolves_to[0]?.species?.name;
-      const evolutionFormat3 =
-        evolution?.chain?.evolves_to[0]?.evolves_to[0]?.species?.name;
-      const image1 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain.species.url
-        .replace("https://pokeapi.co/api/v2/pokemon-species/", "")
-        .replace("/", "")!}.png`;
-      const image2 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain?.evolves_to[0]?.species?.url
-        ?.replace("https://pokeapi.co/api/v2/pokemon-species/", "")
-        .replace("/", "")!}.png`;
-      const image3 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution?.chain?.evolves_to[0]?.evolves_to[0]?.species?.url
-        ?.replace("https://pokeapi.co/api/v2/pokemon-species/", "")
-        .replace("/", "")!}.png`;
-      const pokeType = types[0].type.name;
-      if (evolution && species) {
-        setIsLoading(false);
-      }
+      const evolutionFormat3 = evolution?.chain?.evolves_to[0]?.evolves_to[0]?.species?.name;
+
+      const getId = (url: string) => url.split("/").filter(Boolean).pop();
+      
+      const image1 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getId(evolution.chain.species.url)}.png`;
+      const image2 = evolution.chain.evolves_to[0] 
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getId(evolution.chain.evolves_to[0].species.url)}.png` 
+        : "";
+      const image3 = evolution.chain.evolves_to[0]?.evolves_to[0]
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getId(evolution.chain.evolves_to[0].evolves_to[0].species.url)}.png`
+        : "";
+
       setSideCard({
         evolutionName: {
           name1: evolutionFormat1!,
-          name2: evolutionFormat2!,
-          name3: evolutionFormat3!,
+          name2: evolutionFormat2 || "",
+          name3: evolutionFormat3 || "",
         },
         targetName: name,
-        height: height,
-        weight: weight,
-        abilities: abilities,
-        stats: stats,
-        description: description!,
-        evolvesFrom: evolutionFormat2!,
-        evolvesTo: evolutionFormat3!,
-        images: { image1: image1!, image2: image2!, image3: image3! },
+        height,
+        weight,
+        abilities,
+        stats,
+        description,
+        evolvesFrom: evolutionFormat2 || "",
+        evolvesTo: evolutionFormat3 || "",
+        images: { image1, image2, image3 },
         id: count,
-        type: pokeType,
+        type: types[0].type.name,
       });
-      if (count < 650) {
-        setImg(
-          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${count}.gif`
-        );
-      } else {
-        setImg(
-          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${count}.png`
-        );
-      }
+
+      setImg(count < 650 
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${count}.gif`
+        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${count}.png`
+      );
+      
       setIsLoading(false);
-      setDisplay(true);
     } catch (e) {
+      console.error(e);
       setIsLoading(false);
-      setDisplay(true);
       setSideCard(null);
       setImg("pokeball.png");
       setNodataText("No Data Available For This Pokemon");
     }
   }
 
-  if (requiredData && allPokemons) {
+  if (requiredData) {
     return (
       <div className="relative flex flex-col gap-y-20 ">
         <img src="pokeball-icon.png" className="fixed -left-20 -top-20"></img>
@@ -240,7 +180,6 @@ function ProductDetail() {
             type="text"
             name="search"
             className="h-full w-full px-2 rounded-xl text-gray-800 tracking-wide font-medium text-lg outline-none focus:border-gray-300 border-2 border-transparent transition relative"
-            id=""
             placeholder="Search your pokemon"
             onChange={processChange}
           />
@@ -250,101 +189,54 @@ function ProductDetail() {
           <div className="flex  justify-center w-full  lg:justify-start ">
             <div className="flex flex-col justify-center items-center lg:items-start mx-5  ">
               <div className="flex flex-wrap  mb-10 w-full   lg:w-[57%] transition-transform duration-300 ease-in-out gap-x-5  xl:gap-x-10  gap-y-20 md+:mx-10  2xl:mx-20 justify-center items-center  text-lg ">
-                {!searchInput
-                  ? requiredData.map((poke: singlePokemonData) => (
+                {(!searchInput ? requiredData : searchResults).map((poke: singlePokemonData) => (
+                  <div
+                    key={poke.id}
+                    className="card h-40 justify-center w-60 lg+:w-80  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer outline-none sm:mx-5 md:mx-0 lg:mx-0  hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative "
+                    onClick={() =>
+                      handleClick(
+                        poke.id,
+                        poke.name,
+                        poke.height,
+                        poke.weight,
+                        poke.abilities,
+                        poke.stats,
+                        poke.types
+                      )
+                    }
+                  >
+                    <div className="flex justify-center flex-col relative items-center w-full gap-y-1 ">
+                      <img
+                        src={poke.sprites.front_default}
+                        alt="poke_image"
+                        className="absolute  -top-[54px] "
+                      />
+                      <p className="text-gray-400 text-xs">N° {poke.id}</p>
+                      <p className="text">{poke.name}</p>
                       <div
-                        key={poke.order}
-                        className="card h-40 justify-center w-60 lg+:w-80  rounded-xl  shadow-md bg-white flex z-10 cursor-pointer outline-none sm:mx-5 md:mx-0 lg:mx-0  hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative "
-                        onClick={() =>
-                          handleClick(
-                            poke.id,
-                            poke.name,
-                            poke.height,
-                            poke.weight,
-                            poke.abilities,
-                            poke.stats,
-                            poke.types
-                          )
-                        }
+                        ref={div_color}
+                        className="text-sm flex gap-x-3 text-gray-800 mt-2"
                       >
-                        <div className="flex justify-center flex-col relative items-center w-full gap-y-1 ">
-                          <img
-                            src={poke.sprites.front_default}
-                            alt="poke_image"
-                            className="absolute  -top-[54px] "
-                          />
-                          <p className="text-gray-400 text-xs">N° {poke.id}</p>
-                          <p className="text">{poke.name}</p>
-                          <div
-                            ref={div_color}
-                            className="text-sm flex gap-x-3 text-gray-800 mt-2"
+                        {poke.types.map((val) => (
+                          <Suspense
+                            key={val.slot}
+                            fallback={
+                              <div className="fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50">
+                                <img
+                                  src="pokeball-icon.png"
+                                  className="animate-spin h-20 w-20 filter brightness-50"
+                                  alt="loading_spinner"
+                                />
+                              </div>
+                            }
                           >
-                            {poke.types.map((val) => (
-                              <Suspense
-                                key={val.slot}
-                                fallback={
-                                  <div className="fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50">
-                                    <img
-                                      src="pokeball-icon.png"
-                                      className="animate-spin h-20 w-20 filter brightness-50"
-                                      alt="loading_spinner"
-                                    />
-                                  </div>
-                                }
-                              >
-                                <Color key={val.slot} val={val} />
-                              </Suspense>
-                            ))}
-                          </div>
-                        </div>
+                            <Color val={val} />
+                          </Suspense>
+                        ))}
                       </div>
-                    ))
-                  : searchInput &&
-                    allPokemons.map((poke: singlePokemonData) => (
-                      <div
-                        key={poke.order}
-                        className="card  h-40 w-80 flex justify-center  rounded-xl shadow-md bg-white z-10 cursor-pointer  outline-none hover:border-gray-300 hover:border-2 transition-all duration-75 ease-in relative sm:ml-10 lg:ml-0"
-                        onClick={() =>
-                          handleClick(
-                            poke.id,
-                            poke.name,
-                            poke.height,
-                            poke.weight,
-                            poke.abilities,
-                            poke.stats,
-                            poke.types
-                          )
-                        }
-                      >
-                        <div className="flex justify-center flex-col relative items-center w- gap-y-1 ">
-                          <img
-                            src={poke.sprites.front_default}
-                            alt="poke_image"
-                            className="absolute  -top-[54px] "
-                          />
-                          <p className="text-gray-400 text-xs">N° {poke.id}</p>
-                          <p className="text">{poke.name}</p>
-                          <div className="text-sm flex gap-x-3 text-gray-800 mt-2">
-                            {poke.types.map((val) => (
-                              <Suspense
-                                key={val.slot}
-                                fallback={
-                                  <div className="fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50">
-                                    <img
-                                      src="pokeball-icon.png"
-                                      className="animate-spin h-20 w-20 filter brightness-50"
-                                      alt="loading_spinner"
-                                    />
-                                  </div>
-                                }
-                              >
-                                <Color val={val} />
-                              </Suspense>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                    </div>
+                  </div>
+                ))}
               </div>
               {requiredData.length > 0 && !searchInput && (
                 <div className="w-full flex-wrap gap-y-5 sm:w-11/12 md+:w-5/6 lg:w-[57%]  z-20 mb-10 text-center gap-x-4 sm:gap-x-10 flex justify-center  items-center">
@@ -373,7 +265,7 @@ function ProductDetail() {
                 </div>
               )}
             </div>
-            {isLoading && window.innerWidth > 1024 ? (
+            {(isLoading || loading.loading) && window.innerWidth > 1024 ? (
               <div className="fixed  h-screen flex items-center w-[350px]  right-10 pb-80  2xl:right-10 3xl:right-20 4xl:right-40 5xl:right-60 z-50">
                 <img
                   src="pokeball-icon.png"
@@ -381,7 +273,7 @@ function ProductDetail() {
                   alt="loading_spinner"
                 />
               </div>
-            ) : isLoading && window.innerWidth <= 1024 ? (
+            ) : (isLoading || loading.loading) && window.innerWidth <= 1024 ? (
               <div className="fixed flex justify-center bg-white items-center w-screen h-screen top-0 left-0 z-50">
                 <img
                   src="pokeball-icon.png"
@@ -415,16 +307,6 @@ function ProductDetail() {
             )}
           </div>
         </div>
-      </div>
-    );
-  } else if (loading.loading) {
-    return (
-      <div className="flex justify-center items-center w-screen h-screen">
-        <img
-          src="pokeball-icon.png"
-          className="animate-spin h-20 w-20 filter brightness-50"
-          alt="loading_spinner"
-        />
       </div>
     );
   } else
