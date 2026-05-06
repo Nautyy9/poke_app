@@ -12,6 +12,9 @@ This document outlines the progress of improving the Pokemon App's data fetching
 - [x] **API Infrastructure**: Created `redux/services/pokemonApi.ts` and integrated it into the central Redux store.
 - [x] **Redundancy Cleanup**: Deleted legacy thunk slices and React Query hooks.
 - [x] **UX Improvement**: Removed the forced 2-second loading delay in `App.tsx`.
+- [x] **Environment Migration**: Migrated the project from Node 18 to Node 24.
+- [x] **Docker Integration**: Implemented a multi-stage Dockerfile using Node 24 and Nginx for consistent production builds.
+- [x] **Dependency Cleanup**: Uninstalled `react-query` as it is no longer used.
 
 ---
 
