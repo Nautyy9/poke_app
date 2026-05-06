@@ -5,30 +5,28 @@ This document outlines the progress of improving the Pokemon App's data fetching
 ## Completed Tasks
 
 - [x] **Optimization of Search Logic**: Refactored `ProductDetail.tsx` to use RTK Query hooks and `Promise.all` for search results, eliminating unnecessary re-renders.
-- [x] **Fix Flickering in Pokemon List**: Migrated pagination to RTK Query in `TanstackContext.tsx`, ensuring smooth state transitions and automatic cache management.
+- [x] **Performance Fix: Decentralized Fetching**: Identified a major bottleneck where a centralized `requiredData` array in context caused 20+ global re-renders per page load. Refactored the architecture so each `PokeCard` handles its own fetching.
+- [x] **UI/UX Polish**: Implemented skeleton loaders for Pokemon cards to improve perceived performance (FCP/LCP).
 - [x] **Search Payload Optimization**: Optimized initial search master-list fetch to a realistic 2000 entries.
-- [x] **Sequential Fetching Fix**: Refactored `handleClick` in `ProductDetail.tsx` to use RTK Query lazy hooks, improving the speed of loading side card details.
-- [x] **API Infrastructure**: Created `redux/services/pokemonApi.ts` with comprehensive endpoints and integrated it into the central Redux store.
-- [x] **Redundancy Cleanup**: Deleted legacy thunk slices (`pokemonSlice.tsx`, `eachPokeSlice.tsx`) and React Query hooks (`useReactQuery.tsx`).
-- [x] **Provider Cleanup**: Removed `QueryClientProvider` and React Query devtools from `main.tsx`.
-- [x] **UI Polish**: Refactored `Color.tsx` to use a cleaner mapping object for types.
+- [x] **Sequential Fetching Fix**: Refactored `handleClick` in `ProductDetail.tsx` to use RTK Query lazy hooks for side card details.
+- [x] **API Infrastructure**: Created `redux/services/pokemonApi.ts` and integrated it into the central Redux store.
+- [x] **Redundancy Cleanup**: Deleted legacy thunk slices and React Query hooks.
 - [x] **UX Improvement**: Removed the forced 2-second loading delay in `App.tsx`.
 
 ---
 
-## Technical Rationale: Why RTK Query?
+## Technical Rationale: Decentralized vs. Centralized Fetching
 
-The project has moved from a fragmented approach to a unified **RTK Query** architecture for the following reasons:
+The initial migration used a **Centralized** pattern (one central array in Context). This was slow because:
+1. **Global Re-renders**: Adding one Pokemon to the array forced the entire app to re-render. With 20 Pokemon, this happened 20 times in ~500ms.
+2. **Blocking UI**: The app stayed blank or showed a spinner until the list was aggregated.
 
-1.  **Unified Source of Truth**: Data is now managed exclusively through the Redux store via RTK Query, eliminating cache synchronization issues between Redux and React Query.
-2.  **Automatic Caching**: RTK Query handles all caching out-of-the-box, replacing the manual, error-prone `listCache` and `detailCache` implementations.
-3.  **Significant Code Reduction**: By removing manual slices and thunks, the codebase is now much leaner and easier to maintain.
-4.  **Declarative Data Fetching**: Using generated hooks (e.g., `useGetPokemonsQuery`) makes the data flow in components much more readable and predictable.
-5.  **Built-in State Management**: RTK Query automatically provides `isLoading`, `isFetching`, and `error` states, removing the need for manual state tracking in slices.
+The new **Decentralized** pattern (PokeCard-level fetching) is faster because:
+1. **Isolated Re-renders**: When a Pokemon's data arrives, only its specific `PokeCard` re-renders.
+2. **Immediate Feedback**: Users see the page structure and skeleton loaders instantly (improving FCP).
+3. **Browser Efficiency**: The browser can manage the 20 concurrent requests more efficiently without the main thread being hammered by 20 global React updates.
 
 ---
 
 ## Analysis of Legacy/Commented Code
-
-- **Direct DOM Manipulation**: Future work should further address the direct `document.body.style.overflow` manipulation in `SideCard.tsx` by using a more idiomatic React approach.
-- **Side Card Complexity**: While data fetching is now optimized, the `SideCard.tsx` component still contains significant layout duplication between mobile and desktop views that can be further refactored.
+- **Direct DOM Manipulation**: Future work should address the `document.body.style.overflow` in `SideCard.tsx`.
