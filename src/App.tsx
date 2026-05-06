@@ -9,11 +9,13 @@ function App() {
 
 
     useEffect(() => {
+      /* 
+      // Bottleneck: Forced UX delay makes the app feel slow
       setLoading(true)
       setTimeout(() =>{
           setLoading(false)
       },2000)
-      
+      */
   }, [])
 
   if(loading){

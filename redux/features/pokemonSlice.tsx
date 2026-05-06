@@ -9,17 +9,24 @@ const initialState: startState = {
   error: "",
 };
 
+// Simple cache for main list results
+const listCache: Record<string, fetchType> = {};
+
 export const fetchPokemons: any = createAsyncThunk(
   "poke/getPokemons",
-  async (url: string) => {
-    // console.log(url);
+  async (url: string, { rejectWithValue }) => {
+    // Check cache first
+    if (listCache[url]) {
+      return listCache[url];
+    }
+    
     try {
       const res = await axios.get(`${url}`);
       const resData = await res.data;
+      listCache[url] = resData; // Store in cache
       return resData;
     } catch (err) {
-      //   console.log(err);
-      return Promise.reject(err);
+      return rejectWithValue(err);
     }
   }
 );

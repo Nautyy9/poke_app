@@ -121,7 +121,7 @@ function ProductDetail() {
     // making a timeout for input field slowed results else wrong results
     let timeout;
     clearTimeout(timeout);
-    timeout = setTimeout(() => {
+    timeout = setTimeout(async () => {
       if (data?.data?.results) {
         setInputSearch(e.target.value);
         setAllPokemons([]);
@@ -129,13 +129,23 @@ function ProductDetail() {
           val.name.toLowerCase().includes(e.target.value.toLowerCase())
         );
         req.length = 20;
+
+        /*
+        // ISSUE: Calling setAllPokemons inside map triggers up to 20 re-renders
         req.map(async (val: resArray) => {
           const call = await axios.get(val.url);
           //prev here maps to each object so instead of directly spreading the allpokemons we spread the prev
           if (call) setAllPokemons((prev: any): any => [...prev, call.data]);
         });
+        */
+
+        // Optimization: Fetch all details in parallel and update state once
+        const results = await Promise.all(
+          req.map((val: resArray) => axios.get(val.url).then((res) => res.data))
+        );
+        setAllPokemons(results as any);
       }
-    }, 2000);
+    }, 500); // Reduced delay from 2000ms to 500ms
   }
   const processChange = debounce(
     (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e),

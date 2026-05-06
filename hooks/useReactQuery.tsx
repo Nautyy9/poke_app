@@ -2,8 +2,14 @@ import axios from "axios";
 import { useQuery } from "react-query";
 
 async function fetchAllPokemons() {
+  // return await axios
+  //   .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0") // ISSUE: Massive payload fetch
+  //   .then((res) => res.data)
+  //   .catch((err) => err);
+  
+  // Optimization: Fetch all names (approx 1300) once for search filtering
   return await axios
-    .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
+    .get("https://pokeapi.co/api/v2/pokemon?limit=2000&offset=0")
     .then((res) => res.data)
     .catch((err) => err);
 }
